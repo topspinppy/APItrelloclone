@@ -1,12 +1,37 @@
-//Connect 
+//import
+import path from 'path'
 import mongoose from 'mongoose'
 import config from './config'
 import mongooseClient from './libraries/database/client/mongoose'
-import User from './model/user/user.model.js'
+import Koa from 'koa'
+import cors from '@koa/cors'
+import { load } from 'koa-decorator'
+import bodyParser from 'koa-bodyparser'
+import route from 'koa-router'
+
+//middlewares
+const app = new Koa()
+const router = new route()
+
+app.use(cors())
+app.use(bodyParser())
 
 
 //call env
 require('dotenv').config()
+
+//load router
+const apiRouter = load(path.resolve(__dirname, 'controllers'), '.controller.js')
+app.use(apiRouter.routes())
+app.use(apiRouter.allowedMethods({
+  throw: true
+}))
+
+
+// router.get('/users', async(ctx, next) => {
+//     let users = await User.find({})
+//     ctx.body = JSON.stringify(users)
+// })
 
 
 //connect Database
@@ -14,7 +39,7 @@ if (config.database.databaseURI)
 {
     mongooseClient(config.database.databaseURI)
     .then(dbClient => {
-        console.log(`Connected to ${dbClient.host}:${dbClient.port}/${dbClient.name}`)
+        console.log(`Connected Database to ${dbClient.host}:${dbClient.port}/${dbClient.name}`)
     })
     .catch(err => {
         console.error('Unable to start server!', err)
@@ -23,8 +48,8 @@ if (config.database.databaseURI)
 }
 
 
-
-
+app.listen(config.system.port)
+console.log(`starting server on port ${config.system.port}`)
 
 
 
@@ -75,7 +100,7 @@ if (config.database.databaseURI)
 
 
 //Insert 
-// let person = new User({ firstname: 'Saran', lastname: 'trairattanasuwan', age: '20', status: 'active' });
+// let person = new User({ firstname: 'Saiwarun', lastname: 'Yenjitpissamai', age: '10', status: 'pending' });
 // person.save((err, data) => {
 //     if(err) console.log(err);
 //     console.log('saved document successfully' ,data);

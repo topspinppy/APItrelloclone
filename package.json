@@ -11,14 +11,22 @@
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.7.0",
     "babel-core": "^6.26.3",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "babel-preset-env": "^1.7.0",
+    "koa-router": "^7.4.0",
     "nodemon": "^1.17.5"
   },
   "dependencies": {
+    "@koa/cors": "^2.2.1",
+    "@spksoft/koa-decorator": "^1.2.2",
+    "@spksoft/koa-validator-decorator": "^1.0.1",
+    "@spksoft/mongoose-repository": "^1.0.5",
+    "babel-preset-es2015": "^6.24.1",
     "dotenv": "^6.0.0",
     "koa": "^2.5.1",
     "koa-bodyparser": "^4.2.1",
+    "koa-decorator": "^1.1.1",
     "koa-ejs": "^4.1.1",
     "koa-router": "^7.4.0",
     "koa-static": "^4.0.3",
