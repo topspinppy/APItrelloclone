@@ -1,4 +1,4 @@
-//import
+// import
 import path from 'path';
 import mongoose from 'mongoose';
 import config from './config';
@@ -9,17 +9,20 @@ import { load } from 'koa-decorator';
 import bodyParser from 'koa-bodyparser';
 import route from 'koa-router';
 
-//middlewares
+
+// middlewares
 const app = new Koa();
 const router = new route();
+const serve = require('koa-static');
 
+app.use(serve('uploads'));
 app.use(cors());
 app.use(bodyParser());
 
-//call env
+// call env
 require('dotenv').config();
 
-//load router
+// load router
 const apiRouter = load(
   path.resolve(__dirname, 'controllers'),
   '.controller.js'
@@ -31,17 +34,17 @@ app.use(
   })
 );
 
-//connect Database
+// connect Database
 if (config.database.databaseURI) {
   mongooseClient(config.database.databaseURI)
-    .then(dbClient => {
+    .then((dbClient) => {
       console.log(
         `Connected Database to ${dbClient.host}:${dbClient.port}/${
           dbClient.name
         }`
       );
     })
-    .catch(err => {
+    .catch((err) => {
       console.error('Unable to start server!', err);
       process.exit(1);
     });

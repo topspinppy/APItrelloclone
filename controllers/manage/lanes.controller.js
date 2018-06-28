@@ -2,7 +2,21 @@ import { HttpMethod, route } from 'koa-decorator';
 import validate from '@spksoft/koa-validator-decorator';
 import Lanes from '../../model/lanes/lanes.model';
 import Card from '../../model/card/card.repository';
+import { createGzip } from 'zlib';
 
+const joinslanes = () => {
+  return Lanes.aggregate([
+    {
+      $lookup:
+      {
+        from: 'cards',
+        localField: 'cards._id',
+        foreignField: '_id',
+        as: 'cards'
+      }
+    }
+  ])
+}
 @route('/lanes')
 export default class UsersController {
   @route('/', HttpMethod.POST)
@@ -13,17 +27,7 @@ export default class UsersController {
       namelanes,cards
     });
     
-    ctx.body = await Lanes.aggregate([
-      {
-        $lookup:
-        {
-          from: 'cards',
-          localField: 'cards._id',
-          foreignField: '_id',
-          as: 'cards'
-        }
-      }
-    ])
+    ctx.body = await joinslanes()
   }
   
   @route('/:idlanes/:idcard', HttpMethod.DELETE)
@@ -79,7 +83,31 @@ export default class UsersController {
       }
     ])
   }
-
+  @route('/test',HttpMethod.PATCH)
+  async test(ctx){
+    // const param = ctx.params.id
+    const order = ['5b345bbbec32b20893da2b29','5b345bb9ec32b20893da2b27','5b345bbaec32b20893da2b28']
+    // // const lanes = await Lanes.find({_id:param})
+    ctx.body = await Lanes.aggregate([
+      {
+        $lookup:
+        {
+          from: 'cards',
+          localField: 'cards._id',
+          foreignField: '_id',
+          as: 'cards'
+        }
+      },
+      { $match : { "cards._id" : { "$in" : order } } }
+      // {
+      //   $addFields: {
+      //     "cards._order": {
+      //       "$indexOfArray": [order,'$cards.id']
+      //     },
+      //   }
+      // }
+    ])
+  }
   @route('/sortlanes', HttpMethod.PATCH)
   async updatelanes(ctx) {
     const data = ctx.request.body;

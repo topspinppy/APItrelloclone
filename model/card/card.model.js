@@ -20,6 +20,9 @@ const cardSchema = mongoose.Schema({
     type: Date,
     default: Date.now, // วันที่ปัจจุบัน
   },
+  tag: {
+    type: Array,
+  },
 });
 
 // Command Schema Validation

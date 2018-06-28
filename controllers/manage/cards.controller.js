@@ -1,9 +1,22 @@
 import {HttpMethod, route} from 'koa-decorator'
 import validate from '@spksoft/koa-validator-decorator'
 import Cards from '../../model/card/card.repository'
-import Lanes from '../../model/lanes/lanes.model';
+import Lanes from '../../model/lanes/lanes.model'
+import multer from 'koa-multer'
 
-
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)   
+  }
+})
+const upload = multer({ 
+  storage: storage
+});
+ 
+ 
 @route('/manage')
 export default class CardsController {
   @route('/cards/:idlanes', HttpMethod.POST)
@@ -15,7 +28,8 @@ export default class CardsController {
     await Cards.create({
       namecards,
       description : '',
-      Attachment : ''
+      Attachment : '',
+      Tag : []
     }).then( (res) =>{
       _id = res._id
     })
@@ -55,6 +69,22 @@ export default class CardsController {
     ctx.body = result
   }
 
+  @route('/cards/tag', HttpMethod.PATCH)
+  async updateTag (ctx) {
+    const { tag,idcard } = ctx.request.body
+    const results = await Cards.update({_id: idcard},{tag: tag })
+    ctx.body = await Lanes.aggregate([
+      {
+        $lookup:
+        {
+          from: 'cards',
+          localField: 'cards._id',
+          foreignField: '_id',
+          as: 'cards'
+        }
+      }
+    ])
+  }
   @route('/cards', HttpMethod.PATCH)
   async update (ctx) {
     const { nameHeader , description , Attachment } = ctx.request.body
@@ -74,8 +104,15 @@ export default class CardsController {
       }
     ])
   }
-
-  @route('/cardsdescription', HttpMethod.PATCH)
+  @route('/postsupload/:id', HttpMethod.POST , upload.single('file'))
+  async uploadfile (ctx,next) {
+    const params = ctx.params.id
+    console.log( 'ctx' , ctx.req.file )
+    const result = Cards.update({'_id': params},{'Attachment': ctx.req.file.originalname})
+    ctx.body = result; 
+  }
+  
+  @route('/cardsdescription', HttpMethod.PATCH) 
   async updatedescription (ctx) {
     const { _id , description } = ctx.request.body
 
@@ -92,7 +129,7 @@ export default class CardsController {
       }
     ])
   }
-  
+   
   @route('/cards/:id', HttpMethod.DELETE)
   async delete (ctx) {
     try 
@@ -104,7 +141,7 @@ export default class CardsController {
           $lookup:
           {
             from: 'cards',
-            localField: 'cards',
+            localField: 'cards._id',
             foreignField: '_id',
             as: 'cards'
           }

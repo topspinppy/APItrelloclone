@@ -7,7 +7,7 @@ const cardInfoSchema = new mongoose.Schema({
 }, { _id: false });
 
 const lanesSchema = mongoose.Schema({
-  namelanes: {
+  namelanes: { 
     type: String,
     required: true,
     trim: true,
